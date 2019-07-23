@@ -3,8 +3,12 @@ from flask import url_for, Response
 import sys
 sys.path.append('.')
 from firebase import *
+from depart import *
 
 app = Flask(__name__)
+
+def alert(msg):
+    return '<script>alert("{}");</script>'.format(msg)
 
 @app.route('/')
 def mainPage():
@@ -14,43 +18,23 @@ def mainPage():
 def subscribeForm():
 	return render_template('subscribe.html')
 
-@app.route('/subscribe', methods = ['POST'])
+@app.route('/subscribe', methods = ['GET'])
 def subscribe():
-	data = request.form
-	if not data['id']:
-		return redirect(url_for('subscribeForm'), code = 302)
-	elif not data['password']:
-		return redirect(url_for('subscribeForm'), code = 302)
-	elif not data['depart']:
-		return redirect(url_for('subscribeForm'), code = 302)
-	elif not data['email']:
-		return redirect(url_for('subscribeForm'), code = 302)
-
-	return 'Success!'
-
-@app.route('/fire')
-def fire():
-    return render_template('fire.html')
-
-@app.route('/token')
-def token():
-    value = request.args.get('value')
+    token = request.args.get('token')
     depart = request.args.get('depart')
-    
-    if value == None:
-        return 'no token value'
-    elif depart == None:
-        return 'no depart'
 
-    data = JSONMake(value, 'VALIDATION CHECK', 'TEST')
-    txt = send(data)
-    if 'Invalid' in txt:
-        print('invalid token')
+    if ( not token ) or ( not depart ):
+        return redirect(url_for('subscribeForm'))
+
+    data = JSONMake(token, 'VALIDATION CHECK', 'TEST')
+    response = send(data)
+    if 'Invalid' in response:
+        print('Invalid Token')
     else:
-        print('nothing')
-    #sendMessage(value, 'Thanks for your subscription!')
-    return value
+        if depart in ['cse']:
+            register(depart, token)
 
+    return redirect(url_for('mainPage'))
 
 @app.route('/firebase-messaging-sw.js')
 def sw_js():

@@ -25,12 +25,13 @@ def sendMessage(depart, title, body):
         print(send(js))
 
 def register(depart, token):
-    sql = "INSERT INTO {} (token) SELECT * FROM (SELECT '{}') AS tmp WHERE NOT EXISTS (SELECT token FROM cse WHERE token = '{}' ) LIMIT 1;".format(depart, token, token)
+    sql = "INSERT INTO {} (token) SELECT * FROM (SELECT '{}') AS tmp WHERE NOT EXISTS (SELECT token FROM {} WHERE token = '{}' ) LIMIT 1;".format(depart, token, depart, token)
     cursor.execute(sql)
     conn.commit()
 
 
 #register('cse', 'hitokenhello')
 #getUsersFromDepart('cse')
-sendMessage('cse', '긴급공지', 'halo')
-
+#register('cse', 'helloWorld')
+#print(getUsersFromDepart('cse'))
+#sendMessage('cse', '제목', '내용')

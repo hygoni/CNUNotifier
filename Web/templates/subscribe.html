@@ -8,7 +8,7 @@
 <!--===============================================================================================-->
 	<link rel="icon" type="image/png" href="{{url_for('static', filename='images/icons/favicon.ico')}}"/>
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='vendor/bootstrap/css/bootstrap.min.csso')}}"> 
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css')}}"> 
 <!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='fonts/font-awesome-4.7.0/css/font-awesome.min.css')}}"> 
 <!--===============================================================================================-->
@@ -32,11 +32,11 @@
 	<div class="container-contact100">
 
 		<div class="wrap-contact100">
-			<form class="contact100-form validate-form" method='POST' action='./subscribe'>
+			<form class="contact100-form validate-form" method="GET" action="{{url_for('subscribe')}}">
 				<span class="contact100-form-title">
-					충남대학교 공지사항 구독하기
+				
 				</span>
-
+			<!--
 				<div class="wrap-input100 validate-input" data-validate="아이디를 입력하세요.">
 					<input class="input100" type="text" name="id" placeholder="아이디">
 					<span class="focus-input100"></span>
@@ -46,36 +46,36 @@
 				<div class="wrap-input100 validate-input" data-validate="비밀번호를 입력하세요.">
 					<input class="input100" type="password" name="password" placeholder="비밀번호">
 					<span class="focus-input100"></span>
-				</div>
-
+				</div> -->
+				<input type="hidden" id="token" name="token" value="this" />
 				<div class="wrap-input100 validate-input" data-validate = "">
 					<select name="depart" class="input100" placeholder="학부선택">
-						<option value="컴퓨터융합학부">컴퓨터융합학부</option>
+						<option value="cse">컴퓨터융합학부</option>
 						<option value="경영학부">경영학부</option>
 					</select>
 					<span class="focus-input100"></span>
 				</div>
-
+			<!--
 				<div class="wrap-input100 validate-input" data-validate = "이메일을 입력하세요.">
 					<input class="input100" type="text" name="email" placeholder="이메일">
 					<span class="focus-input100"></span>
 				</div>
 
-				<!--
+				
 
 					<div class="wrap-input100 validate-input" data-validate = "Please enter your message">
 					<textarea class="input100" name="message" placeholder="Your Message"></textarea>
 					<span class="focus-input100"></span>
-				</div>
+					</div> -->
 
-				 -->
+				 
 
-				<p style="text-align: center;">회원정보는 암호화되어 안전하게 저장됩니다.</p>
+			<!--	<p style="text-align: center;">회원정보는 암호화되어 안전하게 저장됩니다.</p> -->
 				<div class="container-contact100-form-btn">
 					<button class="contact100-form-btn">
 						<span>
 							<i class="fa fa-paper-plane-o m-r-6" aria-hidden="true"></i>
-							회원가입
+							구독하기
 						</span>
 					</button>
 				</div>
@@ -103,6 +103,49 @@
 	<script src="{{url_for('static', filename='vendor/countdowntime/countdowntime.js')}}"></script> 
 <!--===============================================================================================-->
 	<script src="{{url_for('static', filename='js/main.js')}}"></script> 
+	<script src="{{url_for('static', filename='js/notification.js')}}"></script>
+	<script src="https://www.gstatic.com/firebasejs/6.3.1/firebase.js"></script>
+<script>
+    // Initialize Firebase
+  var firebaseConfig = {
+    apiKey: "AIzaSyBTVn4tvZurN7aBif9zUtEr61fooLK7LkE",
+    authDomain: "cnunotice-2619e.firebaseapp.com",
+    databaseURL: "https://cnunotice-2619e.firebaseio.com",
+    projectId: "cnunotice-2619e",
+    storageBucket: "",
+    messagingSenderId: "56777081777",
+    appId: "1:56777081777:web:fa0923a982e610b0"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+
+  
+    const messaging = firebase.messaging();
+
+    //token값 알아내기
+    messaging.requestPermission()
+        .then(function(){
+            console.log("Have permission");
+            return messaging.getToken();
+        })
+        .then(function(token){
+            console.log(token);
+	    document.getElementById("token").value = token;
+	    /*
+            const Http = new XMLHttpRequest();
+            const url='https://deepnetworks.net:82/token?value='+token+'&depart=' + document.getElementsByClassName("depart")[0].value;
+            Http.open("GET", url);
+            Http.send(); */
+	    displayNotification('앞으로 공지사항 알림이 뜨게됩니다.', 'ICON', '구독 완료', 'LINK', 3)
+
+	})
+        .catch(function(arr){
+            console.log("Error Occured" + arr);
+        });
+
+</script>
+
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-23581568-13"></script>
