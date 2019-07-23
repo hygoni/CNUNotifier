@@ -25,4 +25,17 @@ def subscribe():
 
 	return 'Success!'
 
+@app.route('/fire')
+def fire():
+    return render_template('fire.html')
+
+@app.route('/token/<value>')
+def token(value):
+    sendMessage(value, 'Thanks for your subscription!')
+    return value
+
+def sendMessage(token_val, message):
+    import os
+    os.system('curl -X POST --header "Authorization: key=AAAADTgtg7E:APA91bHDBxYW9AEJT1BnDwbitDLrt1PnTCuwn_vuI8zHcaal8dpZ7YFj7DAgeVBxvLkVCPlFalvHJIWNvTbQiW5CsmCMBzty_1VIQpJaDvS0v71IbRUAnZbUvFeOIahbw36EJDRgsTHk"     --Header "Content-Type: application/json"     https://fcm.googleapis.com/fcm/send     -d "{\"to\":\"' + token_val + '\",\"notification\":{\"body\":\"' + message + '"\"}}"')
+
 app.run(host='0.0.0.0', port = 81)
