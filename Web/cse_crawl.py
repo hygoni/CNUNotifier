@@ -13,23 +13,29 @@ from depart import *
 conn = pymysql.connect(host='localhost',user='cnunoti',password='localhost',db='cnunoti')
 cursor=conn.cursor()
 
-def savingMySQL(NumList, TextList): #mySQL에 새 소식 저장하기
+CSE_BACHELOR = 'https://computer.cnu.ac.kr/computer/notice/bachelor.do'
+CSE_NOTICE = 'https://computer.cnu.ac.kr/computer/notice/notice.do'
+CSE_PROJECT = 'https://computer.cnu.ac.kr/computer/notice/project.do'
+CSE_JOB = 'https://computer.cnu.ac.kr/computer/notice/job.do'
+CSE_NEWS = 'https://computer.cnu.ac.kr/computer/notice/cse.do'
+
+def savingMySQL(NumList, TextList, table): #mySQL에 새 소식 저장하기
     global conn
     global cursor
     try:
         for i in range(len(NumList)):
-            sql = "insert into cnu_com_notifier values ("+NumList[i]+", '"+TextList[i]+ "')"
+            sql = "insert into " + table + " values ("+NumList[i]+", '"+TextList[i]+ "')"
             cursor.execute(sql)
             conn.commit()
     except:
         traceback.print_exc()
     return
 
-def getFromDB(): #소식 번호만 리스트로 받아오기
+def getFromDB(table): #소식 번호만 리스트로 받아오기
     global conn
     global cursor
     try:
-        sql = "select number, txt from cnu_com_notifier order by number desc"
+        sql = "select number, txt from " + table + " order by number desc"
         cursor.execute(sql)
         text_list = []
         num_list = []
@@ -42,11 +48,11 @@ def getFromDB(): #소식 번호만 리스트로 받아오기
         traceback.print_exc()
     return num_list, text_list
 
-def printNewNews(num): #num의 개수만큼 새 소식 받아오기
+def printNewNews(num, table): #num의 개수만큼 새 소식 받아오기
     global conn
     global cursor
     try:
-        sql = "select * from cnu_com_notifier order by number desc"
+        sql = "select * from " + table +" order by number desc"
         cursor.execute(sql)
         result_list=[]
         for i in range(num):
@@ -57,8 +63,8 @@ def printNewNews(num): #num의 개수만큼 새 소식 받아오기
     return
 
 
-def getLastFromWeb():
-    html=urlopen("https://computer.cnu.ac.kr/computer/notice/bachelor.do?mode=list&&articleLimit=10&article.offset=0")
+def getLastFromWeb(url):
+    html=urlopen(url)
     bsObj=BeautifulSoup(html.read(),"html.parser")
     Num=bsObj.html.body.tbody.findAll("tr")
     NumList=[]
@@ -85,14 +91,22 @@ def findNumOfNew(NewList, OldList):
 
 
 
-while True:
-    newNumber, newTitle=getLastFromWeb() #웹에서 가져옴
-    oldNumber, oldTitle=getFromDB() #DB에서 가져옴
+def crawl_one(url, msgTitle, table):
+    newNumber, newTitle=getLastFromWeb(url) #웹에서 가져옴
+    oldNumber, oldTitle=getFromDB(table) #DB에서 가져옴
 
     numOfNewNews=findNumOfNew(newNumber, oldNumber)
     if numOfNewNews is not 0:
-        printNewNews(numOfNewNews)
-        savingMySQL(newNumber[:numOfNewNews], newTitle[:numOfNewNews])
-        for title in newTitle[:numOfNewNews]:
-            sendMessage('cse', '[공지] 컴퓨터융합학부', title)
-    time.sleep(10)
+        printNewNews(numOfNewNews, table)
+        savingMySQL(newNumber[:numOfNewNews], newTitle[:numOfNewNews], table)
+        for articleTitle in newTitle[:numOfNewNews]:
+            sendMessage('cse', msgTitle, articleTitle)
+
+def crawl_all():
+	while True:
+		crawl_one(CSE_BACHELOR, '[학사공지] - 컴퓨터융합학부', 'CSE_BACHELOR')
+		crawl_one(CSE_PROJECT, '[사업단소식] - 컴퓨터융합학부', 'CSE_PROJECT')
+		crawl_one(CSE_NOTICE, '[일반소식] - 컴퓨터융합학부', 'CSE_NOTICE')
+		crawl_one(CSE_JOB, '[취업정보] - 컴퓨터융합학부', 'CSE_JOB')
+		crawl_one(CSE_NEWS, '[학부소식] - 컴퓨터융합학부', 'CSE_NEWS')
+		time.sleep(10)
