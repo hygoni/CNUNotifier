@@ -1,12 +1,18 @@
 from flask import Flask, render_template, request, redirect
+from flask import url_for
+
 app = Flask(__name__)
 
-@app.route('/subscribeFrom')
+@app.route('/')
 def mainPage():
-	return render_template('./subscribe.html')
+    return redirect(url_for('subscribeForm'))
+
+@app.route('/subscribeForm')
+def subscribeForm():
+	return render_template('subscribe.html')
 
 @app.route('/subscribe', methods = ['POST'])
-def register():
+def subscribe():
 	data = request.form
 	if not data['id']:
 		return redirect(url_for('subscribeForm'), code = 302)
@@ -19,3 +25,4 @@ def register():
 
 	return 'Success!'
 
+app.run(host='0.0.0.0', port = 81)
