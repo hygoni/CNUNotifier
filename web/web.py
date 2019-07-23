@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect
 from flask import url_for, Response
 import sys
-sys.path.append('.')
+sys.path.append('../lib')
 from firebase import *
 from depart import *
 

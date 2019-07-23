@@ -7,7 +7,7 @@ import time
 import traceback
 
 import sys
-sys.path.append('.')
+sys.path.append('../lib')
 from depart import *
 
 conn = pymysql.connect(host='localhost',user='cnunoti',password='localhost',db='cnunoti')
