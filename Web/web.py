@@ -1,10 +1,7 @@
 from flask import Flask, render_template, request, redirect
 app = Flask(__name__)
 
-def alert(message):
-
-
-@app.route('/subscribeFrom'):
+@app.route('/subscribeFrom')
 def mainPage():
 	return render_template('./subscribe.html')
 
