@@ -1,5 +1,8 @@
 from flask import Flask, render_template, request, redirect
-from flask import url_for
+from flask import url_for, Response
+import sys
+sys.path.append('.')
+from firebase import *
 
 app = Flask(__name__)
 
@@ -29,13 +32,33 @@ def subscribe():
 def fire():
     return render_template('fire.html')
 
-@app.route('/token/<value>')
-def token(value):
-    sendMessage(value, 'Thanks for your subscription!')
+@app.route('/token')
+def token():
+    value = request.args.get('value')
+    depart = request.args.get('depart')
+    
+    if value == None:
+        return 'no token value'
+    elif depart == None:
+        return 'no depart'
+
+    data = JSONMake(value, 'VALIDATION CHECK', 'TEST')
+    txt = send(data)
+    if 'Invalid' in txt:
+        print('invalid token')
+    else:
+        print('nothing')
+    #sendMessage(value, 'Thanks for your subscription!')
     return value
 
-def sendMessage(token_val, message):
-    import os
-    os.system('curl -X POST --header "Authorization: key=AAAADTgtg7E:APA91bHDBxYW9AEJT1BnDwbitDLrt1PnTCuwn_vuI8zHcaal8dpZ7YFj7DAgeVBxvLkVCPlFalvHJIWNvTbQiW5CsmCMBzty_1VIQpJaDvS0v71IbRUAnZbUvFeOIahbw36EJDRgsTHk"     --Header "Content-Type: application/json"     https://fcm.googleapis.com/fcm/send     -d "{\"to\":\"' + token_val + '\",\"notification\":{\"body\":\"' + message + '"\"}}"')
 
-app.run(host='0.0.0.0', port = 81)
+@app.route('/firebase-messaging-sw.js')
+def sw_js():
+    js = render_template('firebase-messaging-sw.js')
+    r = Response(response=js, status=200, mimetype='application/javascript')
+    r.headers['Content-Type'] = 'text/javascript'
+    return r
+
+
+context = ('/etc/letsencrypt/live/deepnetworks.net/cert.pem', '/etc/letsencrypt/live/deepnetworks.net/privkey.pem')
+app.run(host='0.0.0.0', port = 82, ssl_context=context)

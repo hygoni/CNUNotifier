@@ -1,3 +1,44 @@
+<h1> 파이어 메세지</h1>
+<script src="https://www.gstatic.com/firebasejs/6.3.1/firebase.js"></script>
 <script>
-	window.location.href='https://cnunotice-2619e.firebaseapp.com';
+    // Initialize Firebase
+  var firebaseConfig = {
+    apiKey: "AIzaSyBTVn4tvZurN7aBif9zUtEr61fooLK7LkE",
+    authDomain: "cnunotice-2619e.firebaseapp.com",
+    databaseURL: "https://cnunotice-2619e.firebaseio.com",
+    projectId: "cnunotice-2619e",
+    storageBucket: "",
+    messagingSenderId: "56777081777",
+    appId: "1:56777081777:web:fa0923a982e610b0"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+
+    const messaging = firebase.messaging();
+
+    //token값 알아내기
+    messaging.requestPermission()
+        .then(function(){
+            console.log("Have permission");
+            return messaging.getToken();
+        })
+        .then(function(token){
+            console.log(token);
+
+            const Http = new XMLHttpRequest();
+	    const url='https://deepnetworks.net:82/token?value='+token+'&depart=cse';
+	    Http.open("GET", url);
+	    Http.send();
+
+
+        })
+        .catch(function(arr){
+            console.log("Error Occured" + arr);
+        });
+// alert(messaging.getToken());
+
 </script>
+
+</body>
+</html>
+
