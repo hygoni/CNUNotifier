@@ -1,19 +1,17 @@
 from flask import Flask, render_template, request, redirect
-from flask import url_for, Response
+from flask import url_for, Response, send_from_directory
+import threading
 import sys
 sys.path.append('../lib')
 from firebase import *
 from depart import *
+from rewrite import *
 
 app = Flask(__name__)
 
-def alert(msg):
-    return '<script>alert("{}");</script>'.format(msg)
-
 @app.route('/')
 def mainPage():
-    return redirect(url_for('subscribeForm'))
-
+    return render_template('index.html')
 @app.route('/subscribeForm')
 def subscribeForm():
 	return render_template('subscribe.html')
@@ -43,6 +41,7 @@ def sw_js():
     r.headers['Content-Type'] = 'text/javascript'
     return r
 
-
-context = ('/etc/letsencrypt/live/deepnetworks.net/cert.pem', '/etc/letsencrypt/live/deepnetworks.net/privkey.pem')
-app.run(host='0.0.0.0', port = 82, ssl_context=context)
+rewrite = threading.Thread(target=startRewrite) #80port to 433port rewriter
+rewrite.start()
+context = ('/etc/letsencrypt/live/pansle.com/cert.pem', '/etc/letsencrypt/live/pansle.com/privkey.pem')
+app.run(host='0.0.0.0', port = 443, ssl_context=context)
