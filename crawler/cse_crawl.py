@@ -19,6 +19,9 @@ CSE_PROJECT = 'https://computer.cnu.ac.kr/computer/notice/project.do'
 CSE_JOB = 'https://computer.cnu.ac.kr/computer/notice/job.do'
 CSE_NEWS = 'https://computer.cnu.ac.kr/computer/notice/cse.do'
 
+def escape_quote(str):
+    return str.replace('\'', '\\\'')
+
 def getRecordCounts(table):
     global conn
     global cursor
@@ -38,10 +41,13 @@ def create_table(table):
 def savingMySQL(NumList, TextList, table): #mySQL에 새 소식 저장하기
     global conn
     global cursor
+
+    TextList = [escape_quote(text) for text in TextList] #Quote escaping
+
     create_table(table)
     try:
         for i in range(len(NumList)):
-            sql = "insert into " + table + " values ("+NumList[i]+", '"+TextList[i]+ "')"
+            sql = "insert into {} values ({}, '{}')".format(table, NumList[i], TextList[i])
             cursor.execute(sql)
             conn.commit()
     except:
@@ -50,11 +56,12 @@ def savingMySQL(NumList, TextList, table): #mySQL에 새 소식 저장하기
 
 def getLastFromDB(table, n): #소식 번호만 리스트로 받아오기
     create_table(table)
+    print(n)
     global conn
     global cursor
 
     try:
-        sql = "select number, txt from " + table + " order by number desc"
+        sql = "select number, txt from " + table + " order by number desc limit {}".format(n)
         cursor.execute(sql)
         text_list = []
         num_list = []
@@ -94,23 +101,14 @@ def getLastFromWeb(url, n):
             if '공지' in line.find("td",{"class":"b-num-box"}).get_text():
                 break
             else:
-                NumList+=[line.find("td",{"class":"b-num-box"}).get_text().strip()]
+                NumList+=[int(line.find("td",{"class":"b-num-box"}).get_text().strip())]
                 TextList+=[line.find("div", {"class":"b-title-box"}).find('a').get_text().strip()]
                 break
     return (NumList,TextList)
 
-def findNumOfNew(NewList, OldList):
-    if NewList[0]==OldList[0]:#List1이 새거
-        print('새로운 소식이 없습니다')
-        return 0
-    else:
-        News=str((int)(NewList[0])-(int)(OldList[0]))
-        print('새로운 소식이 '+News+'개 있습니다.')
-        return int(News)
-
-
 
 def crawl_one(url, msgTitle, table):
+    print('Crawling {}...'.format(msgTitle))
     #초기 세팅
     create_table(table)
     count = getRecordCounts(table)
@@ -123,15 +121,15 @@ def crawl_one(url, msgTitle, table):
     lastNumFromWeb = getLastFromWeb(url, 1)[0][0] 
     lastNumFromDB = getLastFromDB(table, 1)[0][0]
     new = abs(lastNumFromWeb - lastNumFromDB)
-
-    if n == 0:
+    print(lastNumFromDB, lastNumFromWeb)
+    print('새 소식 : {}개'.format(new))
+    if new == 0:
         return
 
     newNumber, newTitle = getLastFromWeb(url, new) #웹에서 가져옴
-    oldNumber, oldTitle = getLastFromDB(table, new) #DB에서 가져옴
 
     savingMySQL(newNumber[:new], newTitle[:new], table)
-    for articleTitle in newTitle[:numOfNewNews]:
+    for articleTitle in newTitle[:new]:
         sendMessage('cse', msgTitle, articleTitle)
 
 def crawl_all():
@@ -143,4 +141,4 @@ def crawl_all():
         crawl_one(CSE_NEWS, '[학부소식] - 컴퓨터융합학부', 'CSE_NEWS')
         time.sleep(10)
 
-crawl_one(CSE_PROJECT, '[사업단소식] - 컴퓨터융합학부', 'CSE_PROJECT')
+crawl_all()

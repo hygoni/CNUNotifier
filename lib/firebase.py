@@ -2,7 +2,7 @@ import json
 import requests
 from collections import OrderedDict
 
-API_KEY = open('/root/api.key', 'r+').readline().rstrip()
+API_KEY = open('/home/ubuntu/api.key', 'r+').readline().rstrip()
 API_URL = 'https://fcm.googleapis.com/fcm/send'
 
 def JSONMake(token, title, body):
