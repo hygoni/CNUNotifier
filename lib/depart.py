@@ -1,4 +1,6 @@
+# -*- encoding: utf-8 -*-
 import pymysql
+from pymysql import OperationalError
 import sys
 sys.path.append('.')
 from firebase import *
@@ -6,11 +8,23 @@ from firebase import *
 conn = pymysql.connect('localhost', user='cnunoti', password='localhost', db='cnunoti')
 cursor = conn.cursor()
 
+def reconnect():
+    print('OperationalError Occurred, reconnecting mysql...')
+    global conn
+    global cursor
+
+    conn = pymysql.connect('localhost', user='cnunoti', password='localhost', db='cnunoti')
+    cursor = conn.cursor()
+    print('Reconnect completed.')
 
 def getUsersFromDepart(depart):
-    sql = 'SELECT * FROM {}'.format(depart)
-    cursor.execute(sql)
-    conn.commit()
+    try:
+        sql = 'SELECT * FROM {}'.format(depart)
+        cursor.execute(sql)
+        conn.commit()
+    except OperationalError:
+        reconnect()
+        return getUserFromDepart(depart)
 
     result = cursor.fetchall()
     result = [list(tup)[0] for tup in result]
@@ -25,9 +39,13 @@ def sendMessage(depart, title, body):
         print(send(js))
 
 def register(depart, token):
-    sql = "INSERT INTO {} (token) SELECT * FROM (SELECT '{}') AS tmp WHERE NOT EXISTS (SELECT token FROM {} WHERE token = '{}' ) LIMIT 1;".format(depart, token, depart, token)
-    cursor.execute(sql)
-    conn.commit()
+    try:
+        sql = "INSERT INTO {} (token) SELECT * FROM (SELECT '{}') AS tmp WHERE NOT EXISTS (SELECT token FROM {} WHERE token = '{}' ) LIMIT 1;".format(depart, token, depart, token)
+        cursor.execute(sql)
+        conn.commit()
+    except:
+        reconnect()
+        register(depart, token)
 
 
 #register('cse', 'hitokenhello')
@@ -35,3 +53,5 @@ def register(depart, token):
 #register('cse', 'helloWorld')
 #print(getUsersFromDepart('cse'))
 #sendMessage('cse', '제목', '내용')
+if __name__ == '__main__':
+    sendMessage('cse', '재헌띠', 'ㅎㅇㅎㅇ')

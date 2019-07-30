@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+
 import pymysql
 from openpyxl import Workbook
 from openpyxl import load_workbook
@@ -38,7 +41,7 @@ def create_table(table):
     cursor.execute(sql)
     conn.commit()
 
-def savingMySQL(NumList, TextList, table): #mySQL에 새 소식 저장하기
+def savingMySQL(NumList, TextList, table):
     global conn
     global cursor
 
@@ -128,9 +131,9 @@ def crawl_one(url, msgTitle, table):
 
     newNumber, newTitle = getLastFromWeb(url, new) #웹에서 가져옴
 
-    savingMySQL(newNumber[:new], newTitle[:new], table)
-    for articleTitle in newTitle[:new]:
+    for articleTitle in newTitle:
         sendMessage('cse', msgTitle, articleTitle)
+    savingMySQL(newNumber, newTitle, table)
 
 def crawl_all():
     while True:
