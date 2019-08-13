@@ -46,6 +46,7 @@ def sendMessage(depart, title, body):
 def register(depart, token):
     try:
         sql = "INSERT INTO {} (token) SELECT * FROM (SELECT '{}') AS tmp WHERE NOT EXISTS (SELECT token FROM {} WHERE token = '{}' ) LIMIT 1;".format(depart, token, depart, token)
+        print(sql)
         cursor.execute(sql)
         conn.commit()
     except:

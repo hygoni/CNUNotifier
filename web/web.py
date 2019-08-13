@@ -29,7 +29,7 @@ def subscribe():
     if 'Invalid' in response:
         print('Invalid Token')
     else:
-        if depart in ['cse', 'german']:
+        if depart in ['cse', 'german', 'free']:
             register(depart, token)
 
     return redirect(url_for('mainPage'))
