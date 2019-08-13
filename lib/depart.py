@@ -36,7 +36,12 @@ def sendMessage(depart, title, body):
     
     for token in tokenList:
         js = JSONMake(token, title, body)
-        print(send(js))
+        response = send(js)
+        if 'NotRegistered' in response:
+            unregister(depart, token)
+            print('Deleted token {} '.format(token))
+        print(response)
+        
 
 def register(depart, token):
     try:
@@ -47,6 +52,14 @@ def register(depart, token):
         reconnect()
         register(depart, token)
 
+def unregister(depart, token):
+    try:
+        sql = "DELETE FROM {} WHERE token = '{}'".format(depart, token)
+        cursor.execute(sql)
+        conn.commit()
+    except:
+        reconnect()
+        unregister(depart, token)
 
 #register('cse', 'hitokenhello')
 #getUsersFromDepart('cse')
