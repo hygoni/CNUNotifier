@@ -21,6 +21,7 @@ class crawl_free(General):
         notice = soup.findAll('tbody')
         notice_num = soup.findAll('td', {'class': 'cont1'})
         notice_title = soup.findAll('td', {'class': 'cont2'})
+        notice_link = ['http://free.pagei.gethompy.com/html/board.php?evboardNum=b51' for i in notice_title]
 
         # save in list
         result_num = []
@@ -32,8 +33,9 @@ class crawl_free(General):
 
         result_num = result_num[:n]
         result_title = result_title[:n]
+        result_link = notice_link[:n]
 
-        return (result_num, result_title)
+        return (result_num, result_title, result_link)
 
 
 free = crawl_free('http://free.pagei.gethompy.com/html/board.php?evboardNum=b51', 'free', 'FREE_NOTICE', '자유전공학부')

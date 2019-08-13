@@ -31,11 +31,11 @@ def getUsersFromDepart(depart):
     return result
 
 
-def sendMessage(depart, title, body):
+def sendMessage(depart, title, body, link='https://google.com'):
     tokenList = getUsersFromDepart(depart)
     
     for token in tokenList:
-        js = JSONMake(token, title, body)
+        js = JSONMake(token, title, body, link)
         response = send(js)
         if 'NotRegistered' in response:
             unregister(depart, token)

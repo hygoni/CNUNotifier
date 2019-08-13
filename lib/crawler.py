@@ -90,14 +90,14 @@ class GeneralNoNum():
 		self.create_table()
 		count = self.getRecordCounts()
 		if count == 0:
-			oldTitle = self.getLastFromWeb()
+			oldTitle, _ = self.getLastFromWeb()
 			self.savingMySQL(oldTitle)
 			return
 
-		newTitle = self.getLastFromWeb() #웹에서 가져옴
+		newTitle, newLink = self.getLastFromWeb() #웹에서 가져옴
 
-		for articleTitle in newTitle:
-			sendMessage(self.subs_table, self.msgTitle, articleTitle)
+		for i in range(len(newTitle)):
+			sendMessage(self.subs_table, self.msgTitle, newTitle[i], newLink[i])
 			self.savingMySQL(newTitle)
 
 class General():
@@ -172,7 +172,7 @@ class General():
 		self.create_table()
 		count = self.getRecordCounts()
 		if count == 0:
-			oldNumber, oldTitle = self.getLastFromWeb(5)
+			oldNumber, oldTitle, _ = self.getLastFromWeb(5)
 			self.savingMySQL(oldNumber, oldTitle)
 			return
 
@@ -185,8 +185,8 @@ class General():
 		if new == 0:
 			return
 
-		newNumber, newTitle = self.getLastFromWeb(new) #웹에서 가져옴
+		newNumber, newTitle, newLink = self.getLastFromWeb(new) #웹에서 가져옴
 
-		for articleTitle in newTitle:
-			sendMessage(self.subs_table, self.msgTitle, articleTitle)
+		for i in range(len(newTitle)):
+			sendMessage(self.subs_table, self.msgTitle, newTitle[i], newLink[i])
 			self.savingMySQL(newNumber, newTitle)

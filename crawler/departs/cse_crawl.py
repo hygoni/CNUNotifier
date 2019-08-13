@@ -41,16 +41,16 @@ def create_table(table):
     cursor.execute(sql)
     conn.commit()
 
-def savingMySQL(NumList, TextList, table):
+def savingMySQL(numList, textList, table):
     global conn
     global cursor
 
-    TextList = [escape_quote(text) for text in TextList] #Quote escaping
+    textList = [escape_quote(text) for text in textList] #Quote escaping
 
     create_table(table)
     try:
-        for i in range(len(NumList)):
-            sql = "insert into {} values ({}, '{}')".format(table, NumList[i], TextList[i])
+        for i in range(len(numList)):
+            sql = "insert into {} values ({}, '{}')".format(table, numList[i], textList[i])
             cursor.execute(sql)
             conn.commit()
     except:
@@ -97,17 +97,19 @@ def getLastFromWeb(url, n):
     html=urlopen(url)
     bsObj=BeautifulSoup(html.read(),"html.parser")
     Num=bsObj.html.body.tbody.findAll("tr")
-    NumList=[]
-    TextList=[]
+    numList=[]
+    textList=[]
+    linkList=[]
     for line in Num:
-        while len(NumList) < n:
+        while len(numList) < n:
             if '공지' in line.find("td",{"class":"b-num-box"}).get_text():
                 break
             else:
-                NumList+=[int(line.find("td",{"class":"b-num-box"}).get_text().strip())]
-                TextList+=[line.find("div", {"class":"b-title-box"}).find('a').get_text().strip()]
+                numList+=[int(line.find("td",{"class":"b-num-box"}).get_text().strip())]
+                textList+=[line.find("div", {"class":"b-title-box"}).find('a').get_text().strip()]
+                linkList += [url + line.find("div", {"class":"b-title-box"}).find('a').attrs['href']]
                 break
-    return (NumList,TextList)
+    return (numList,textList, linkList)
 
 
 def crawl_one(url, msgTitle, table):
@@ -116,7 +118,7 @@ def crawl_one(url, msgTitle, table):
     create_table(table)
     count = getRecordCounts(table)
     if count == 0:
-        oldNumber, oldTitle = getLastFromWeb(url, 5)
+        oldNumber, oldTitle, _ = getLastFromWeb(url, 5)
         savingMySQL(oldNumber, oldTitle, table)
         return
 
@@ -124,15 +126,13 @@ def crawl_one(url, msgTitle, table):
     lastNumFromWeb = getLastFromWeb(url, 1)[0][0] 
     lastNumFromDB = getLastFromDB(table, 1)[0][0]
     new = abs(lastNumFromWeb - lastNumFromDB)
-    print(lastNumFromDB, lastNumFromWeb)
     print('새 소식 : {}개'.format(new))
     if new == 0:
         return
 
-    newNumber, newTitle = getLastFromWeb(url, new) #웹에서 가져옴
-
-    for articleTitle in newTitle:
-        sendMessage('cse', msgTitle, articleTitle)
+    newNumber, newTitle, newLink = getLastFromWeb(url, new) #웹에서 가져옴
+    for i in range(len(newTitle)):
+        sendMessage('cse', msgTitle, newTitle[i], newLink[i])
     savingMySQL(newNumber, newTitle, table)
 
 def crawl_all():
