@@ -14,15 +14,12 @@ from depart import *
 conn = pymysql.connect(host='localhost',user='cnunoti',password='localhost',db='cnunoti')
 cursor=conn.cursor()
 
-CSE_BACHELOR = 'https://computer.cnu.ac.kr/computer/notice/bachelor.do'
-CSE_NOTICE = 'https://computer.cnu.ac.kr/computer/notice/notice.do'
-CSE_PROJECT = 'https://computer.cnu.ac.kr/computer/notice/project.do'
-CSE_JOB = 'https://computer.cnu.ac.kr/computer/notice/job.do'
-CSE_NEWS = 'https://computer.cnu.ac.kr/computer/notice/cse.do'
-
 class NotOverridedError(Exception):
 	def __init__(self, funcName):
 		super().__init__('{} 함수를 오버라이딩 하지 않았습니다!'.format(funcName))
+
+class GeneralNoNum(General):
+
 
 class General():
 	def __init__(self, url, subs_table, table, msgTitle):
