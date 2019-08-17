@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 from bs4 import BeautifulSoup as bs
 import sys, ssl
 

@@ -11,8 +11,9 @@ import sys
 sys.path.append('../lib')
 from depart import *
 
-conn = pymysql.connect(host='localhost',user='cnunoti',password='localhost',db='cnunoti')
-cursor=conn.cursor()
+def getConn():
+	conn = pymysql.connect(host='localhost',user='cnunoti',password='localhost',db='cnunoti')
+	return conn
 
 class NotOverridedError(Exception):
 
@@ -31,29 +32,34 @@ class GeneralNoNum():
 		return str.replace('\'', '\\\'')
 
 	def getRecordCounts(self):
-		global conn
-		global cursor
+		conn = getConn()
+		cursor = conn.cursor()
 
 		sql = 'SELECT COUNT(*) from {}'.format(self.table)
 		cursor.execute(sql)
 		conn.commit()
 		count = cursor.fetchone()[0]
+		conn.close()
 		return int(count)
 
 
 	def create_table(self):
 		sql = 'CREATE TABLE IF NOT EXISTS {}(txt text)'.format(self.table)
+		conn = getConn()
 		cursor.execute(sql)
 		conn.commit()
+
 
 		if(self.getRecordCounts() == 0):
 			sql = 'INSERT INTO {} VALUES(\'EMPTY NOTICE\')'.format(self.table)
 			cursor.execute(sql)
 			conn.commit()
 
+		conn.close()
+
 	def savingMySQL(self, TextList): #mySQL에 새 소식 저장하기
-		global conn
-		global cursor
+		conn = getConn()
+		cursor = conn.cursor()
 
 		TextList = [self.escape_quote(text) for text in TextList] #Quote escaping
 
@@ -65,11 +71,13 @@ class GeneralNoNum():
 				conn.commit()
 		except:
 			traceback.print_exc()
+
+		conn.close()
 		return
 
 	def isInDB(self, title): #소식 번호만 리스트로 받아오기
-		global conn
-		global cursor
+		conn = getConn()
+		cursor = conn.cursor()
 
 		try:
 			sql = "select count(*) from " + self.table + " where txt = '{}' ".format(title)
@@ -80,6 +88,7 @@ class GeneralNoNum():
 		except:
 			traceback.print_exc()
 
+		conn.close()
 
 	def getLastFromWeb(self): #자식에서 재정의해야함, return type : text_list
 		raise NotOverridedError('getLastFromWeb()')
@@ -111,24 +120,28 @@ class General():
 		return str.replace('\'', '\\\'')
 
 	def getRecordCounts(self):
-		global conn
-		global cursor
+		conn = getConn()
+		cursor = conn.cursor()
 
 		sql = 'SELECT COUNT(*) from {}'.format(self.table)
 		cursor.execute(sql)
 		conn.commit()
 		count = cursor.fetchone()[0]
+		conn.close()
 		return count
 
 
 	def create_table(self):
+		conn = getConn()
+		cursor = conn.cursor()
 		sql = 'CREATE TABLE IF NOT EXISTS {}(number int, txt text)'.format(self.table)
 		cursor.execute(sql)
 		conn.commit()
+		conn.close()
 
 	def savingMySQL(self, NumList, TextList): #mySQL에 새 소식 저장하기
-		global conn
-		global cursor
+		conn = getConn()
+		cursor = conn.cursor()
 
 		TextList = [self.escape_quote(text) for text in TextList] #Quote escaping
 
@@ -140,14 +153,14 @@ class General():
 				conn.commit()
 		except:
 			traceback.print_exc()
+		conn.close()
 		return
 
 	def getLastFromDB(self, n): #소식 번호만 리스트로 받아오기
 		self.create_table()
 		print(n)
-		global conn
-		global cursor
-
+		conn = getConn()
+		cursor = conn.cursor()
 		try:
 			sql = "select number, txt from " + self.table + " order by number desc limit {}".format(n)
 			cursor.execute(sql)
@@ -160,6 +173,8 @@ class General():
 				num_list.append(int(result[0]))
 		except:
 			traceback.print_exc()
+
+		conn.close()
 		return num_list, text_list
 
 

@@ -25,6 +25,8 @@ class crawl_german(General):
       global driver
       numList = []
       textList = []
+      linkList = []
+
       driver.get(self.url)
       
       bsObj = BeautifulSoup(driver.page_source, 'html.parser')
@@ -42,7 +44,8 @@ class crawl_german(General):
           num = int(td[0].get_text().strip())
           textList.append(title)
           numList.append(num)
-      return (numList, textList)
+          linkList.append(link)
+      return (numList, textList, linkList)
 
     
     def getTitle(self, link):
@@ -51,13 +54,20 @@ class crawl_german(General):
       bsObj = BeautifulSoup(driver.page_source, 'html.parser')
       return bsObj.find('div', {'class' : 'read_title'}).get_text()
 
-with getDriver() as driver:
-    german = crawl_german('https://german.cnu.ac.kr/notice.brd?shell=/index.shell:419', 'german', 'GERMAN_NOTICE', '독어독문학과')
+driver = None
 
 def crawl_all():
+    global driver
+    driver = getDriver()
+    german = crawl_german('https://german.cnu.ac.kr/notice.brd?shell=/index.shell:419', 'german', 'GERMAN_NOTICE', '독어독문학과')
     while True:
         try:
             german.crawl()
             time.sleep(1)
         except:
+            driver.close()
             traceback.print_exc()
+
+
+if __name__ == '__main__':
+    crawl_all()
