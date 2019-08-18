@@ -19,7 +19,8 @@ class crawl_dorm(GeneralNoNum):
         soup = bs(html.text, 'html.parser')
         result_title = []
         result_link = []
-
+        result_time = []
+        
         # data extraction
         notice = soup.findAll('td', {'class': 'title'})
         for td in notice:
@@ -29,7 +30,8 @@ class crawl_dorm(GeneralNoNum):
             link = 'https://dorm.cnu.ac.kr/_prog/_board/' + td.find('a').attrs['href']
             result_title.append(title)
             result_link.append(link)
-        return (result_title, result_link)
+            result_time.append(time.time())
+        return result_title, result_link, result_time
 
 
 dorm = crawl_dorm('https://dorm.cnu.ac.kr/_prog/_board/?code=sub05_0501&site_dvs_cd=kr&menu_dvs_cd=0501', 'dorm', 'DORM_NOTICE', '기숙사')

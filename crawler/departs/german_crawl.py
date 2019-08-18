@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 import sys, ssl
 from selenium import webdriver
-sys.path.append('/home/ubuntu/CNUNotifier/lib/')
+sys.path.append('../../lib/')
 from crawler import *
 import time
 import traceback
@@ -26,7 +26,8 @@ class crawl_german(General):
       numList = []
       textList = []
       linkList = []
-
+      timeList = []
+      
       driver.get(self.url)
       
       bsObj = BeautifulSoup(driver.page_source, 'html.parser')
@@ -45,7 +46,8 @@ class crawl_german(General):
           textList.append(title)
           numList.append(num)
           linkList.append(link)
-      return (numList, textList, linkList)
+          timeList.append(time.time())
+      return numList, textList, linkList, timeList
 
     
     def getTitle(self, link):

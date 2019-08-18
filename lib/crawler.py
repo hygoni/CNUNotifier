@@ -44,29 +44,29 @@ class GeneralNoNum():
 
 
 	def create_table(self):
-		sql = 'CREATE TABLE IF NOT EXISTS {}(txt text)'.format(self.table)
+		sql = 'CREATE TABLE IF NOT EXISTS {}(txt text, link text, time double)'.format(self.table)
 		conn = getConn()
 		cursor.execute(sql)
 		conn.commit()
 
 
 		if(self.getRecordCounts() == 0):
-			sql = 'INSERT INTO {} VALUES(\'EMPTY NOTICE\')'.format(self.table)
+			sql = 'INSERT INTO {} VALUES(\'EMPTY NOTICE\', \'https://pansle.com\',  {})'.format(self.table, time.time())
 			cursor.execute(sql)
 			conn.commit()
 
 		conn.close()
 
-	def savingMySQL(self, TextList): #mySQL에 새 소식 저장하기
+	def savingMySQL(self, TextList, linkList, timeList): #mySQL에 새 소식 저장하기
 		conn = getConn()
 		cursor = conn.cursor()
 
 		TextList = [self.escape_quote(text) for text in TextList] #Quote escaping
-
+		linkList = [self.escape_quote(link) for link in linkList]
 		self.create_table()
 		try:
 			for i in range(len(TextList)):
-				sql = "insert into {} values ('{}')".format(self.table, TextList[i])
+				sql = "insert into {} values ('{}', '{}', {})".format(self.table, TextList[i], linkList[i], timeList[i])
 				cursor.execute(sql)
 				conn.commit()
 		except:
@@ -99,15 +99,15 @@ class GeneralNoNum():
 		self.create_table()
 		count = self.getRecordCounts()
 		if count == 0:
-			oldTitle, _ = self.getLastFromWeb()
-			self.savingMySQL(oldTitle)
+			oldTitle, oldLink, oldTime = self.getLastFromWeb()
+			self.savingMySQL(oldTitle, oldLink, oldTime)
 			return
 
-		newTitle, newLink = self.getLastFromWeb() #웹에서 가져옴
+		newTitle, newLink, newTime = self.getLastFromWeb() #웹에서 가져옴
 
 		for i in range(len(newTitle)):
 			sendMessage(self.subs_table, self.msgTitle, newTitle[i], newLink[i])
-			self.savingMySQL(newTitle)
+			self.savingMySQL(newTitle, newLink, newTime)
 
 class General():
 	def __init__(self, url, subs_table, table, msgTitle):
@@ -134,21 +134,21 @@ class General():
 	def create_table(self):
 		conn = getConn()
 		cursor = conn.cursor()
-		sql = 'CREATE TABLE IF NOT EXISTS {}(number int, txt text)'.format(self.table)
+		sql = 'CREATE TABLE IF NOT EXISTS {}(number int, txt text, link text, time double)'.format(self.table)
 		cursor.execute(sql)
 		conn.commit()
 		conn.close()
 
-	def savingMySQL(self, NumList, TextList): #mySQL에 새 소식 저장하기
+	def savingMySQL(self, NumList, TextList, linkList, timeList): #mySQL에 새 소식 저장하기
 		conn = getConn()
 		cursor = conn.cursor()
 
 		TextList = [self.escape_quote(text) for text in TextList] #Quote escaping
-
+		linkList = [self.escape_quote(link) for link in linkList]
 		self.create_table()
 		try:
 			for i in range(len(NumList)):
-				sql = "insert into {} values ({}, '{}')".format(self.table, NumList[i], TextList[i])
+				sql = "insert into {} values ({}, '{}', '{}', {})".format(self.table, NumList[i], TextList[i], linkList[i], timeList[i])
 				cursor.execute(sql)
 				conn.commit()
 		except:
@@ -187,21 +187,20 @@ class General():
 		self.create_table()
 		count = self.getRecordCounts()
 		if count == 0:
-			oldNumber, oldTitle, _ = self.getLastFromWeb(5)
-			self.savingMySQL(oldNumber, oldTitle)
+			oldNumber, oldTitle, oldLink, oldTime = self.getLastFromWeb(5)
+			self.savingMySQL(oldNumber, oldTitle, oldLink, oldTime)
 			return
 
 		#최신 글 개수 불러오기
 		lastNumFromWeb = self.getLastFromWeb(1)[0][0] 
 		lastNumFromDB = self.getLastFromDB(1)[0][0]
 		new = abs(lastNumFromWeb - lastNumFromDB)
-		print(lastNumFromDB, lastNumFromWeb)
 		print('새 소식 : {}개'.format(new))
 		if new == 0:
 			return
 
-		newNumber, newTitle, newLink = self.getLastFromWeb(new) #웹에서 가져옴
+		newNumber, newTitle, newLink, newTime = self.getLastFromWeb(new) #웹에서 가져옴
 
 		for i in range(len(newTitle)):
 			sendMessage(self.subs_table, self.msgTitle, newTitle[i], newLink[i])
-			self.savingMySQL(newNumber, newTitle)
+			self.savingMySQL(newNumber, newTitle, newLink, newTime)

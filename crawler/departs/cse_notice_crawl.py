@@ -14,8 +14,9 @@ class CSE_NOTICE(GeneralNoNum):
 		html=urlopen(self.url)
 		bsObj=BeautifulSoup(html.read(),"html.parser")
 		Num=bsObj.html.body.tbody.findAll("tr", class_='b-top-box')
-		TextList=[]
-		linkList=[]
+		TextList = []
+		linkList = []
+		timeList = []
 		for line in Num:
 			title = line.find("td", {"class":"b-td-left"}).find('a').get_text().strip()
 			title = re.sub('\s+', ' ', title).strip()
@@ -23,8 +24,8 @@ class CSE_NOTICE(GeneralNoNum):
 				continue
 			TextList += [title]
 			linkList += [self.url + line.find("div", {"class":"b-title-box"}).find('a').attrs['href']]
-
-		return TextList, linkList
+			timeList += [time.time()]
+		return TextList, linkList, timeList
 
 bachelor = CSE_NOTICE('https://computer.cnu.ac.kr/computer/notice/bachelor.do', 'cse', 'CSE_NOTICE_BACHELOR', '[학사공지] - 컴퓨터융합학부')
 project = CSE_NOTICE('https://computer.cnu.ac.kr/computer/notice/project.do', 'cse', 'CSE_NOTICE_PROJECT', '[사업단소식] - 컴퓨터융합학부')

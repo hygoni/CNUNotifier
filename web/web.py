@@ -6,8 +6,12 @@ sys.path.append('../lib')
 from firebase import *
 from depart import *
 from rewrite import *
+from db import *
+from rfeed import *
+import datetime
 
 app = Flask(__name__)
+supportedDeparts = ['cse', 'german', 'free', 'dorm']
 
 @app.route('/')
 def mainPage():
@@ -18,6 +22,7 @@ def subscribeForm():
 
 @app.route('/subscribe', methods = ['GET'])
 def subscribe():
+    global supportedDeparts
     token = request.args.get('token')
     depart = request.args.get('depart')
 
@@ -29,7 +34,7 @@ def subscribe():
     if 'Invalid' in response:
         print('Invalid Token')
     else:
-        if depart in ['cse', 'german', 'free', 'dorm']:
+        if depart in supportedDeparts:
             register(depart, token)
 
     return redirect(url_for('mainPage'))
@@ -40,6 +45,45 @@ def sw_js():
     r = Response(response=js, status=200, mimetype='application/javascript')
     r.headers['Content-Type'] = 'text/javascript'
     return r
+
+def make_rss(depart):
+    conn = getConn()
+    cursor = conn.cursor()
+    if depart == 'dorm':
+        sql = 'SELECT txt, link, date from DORM_NOTICE'
+
+    cursor.execute(sql)
+    conn.commit()
+    item_list = []
+    for row in cursor.fetchall():
+        if row[0] == 'Empty Notice':
+            continue
+        item = Item(
+        title = row[0],
+        link = row[1],
+        description = "공지사항",
+        author = depart,
+        guid = Guid(row[1]),
+        pubDate = datetime.datetime.fromtimestamp(row[2]))
+        item_list.append(item)
+    feed = Feed(
+        title = "공지사항 구독",
+        link = "https://pansle.com/rss/" + depart,
+        description = "공지사항 구독용 RSS",
+        language = "ko-KR",
+        lastBuildDate = datetime.datetime.now(),
+        items = item_list)
+    return feed.rss()
+
+
+
+@app.route('/rss/<depart>')
+def rss(depart):
+    global supportedDeparts
+    if depart in supportedDeparts:
+        return make_rss(depart)
+    else:
+        return redirect(url_for('mainPage'))
 
 rewrite = threading.Thread(target=startRewrite) #80port to 433port rewriter
 rewrite.start()
