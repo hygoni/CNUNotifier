@@ -34,12 +34,15 @@ general = CSE_NOTICE('https://computer.cnu.ac.kr/computer/notice/notice.do', 'cs
 
 def crawl_all():
 	while True:
-		bachelor.crawl()
-		project.crawl()
-		job.crawl()
-		news.crawl()
-		general.crawl()
-		time.sleep(10)
+            try:
+                bachelor.crawl()
+                project.crawl()
+                job.crawl()
+                news.crawl()
+                general.crawl()
+                time.sleep(10)
+            except:
+                traceback.print_exc()
 
 if __name__ == '__main__':
 	crawl_all()
