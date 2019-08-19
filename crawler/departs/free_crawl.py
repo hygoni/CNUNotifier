@@ -41,12 +41,6 @@ class crawl_free(General):
 
 free = crawl_free('http://free.pagei.gethompy.com/html/board.php?evboardNum=b51', 'free', 'FREE_NOTICE', '자유전공학부')
 def crawl_all():
-    while True:
-        try:
-            free.crawl()
-            time.sleep(10)
-        except:
-            traceback.print_exc()
-
+    free.crawl()
 if __name__ == '__main__':
     crawl_all()

@@ -37,12 +37,7 @@ class crawl_dorm(GeneralNoNum):
 dorm = crawl_dorm('https://dorm.cnu.ac.kr/_prog/_board/?code=sub05_0501&site_dvs_cd=kr&menu_dvs_cd=0501', 'dorm', 'DORM_NOTICE', '기숙사')
 
 def crawl_all():
-    while True:
-        try:
-            dorm.crawl()
-            time.sleep(10)
-        except:
-            traceback.print_exc()
+    dorm.crawl()
 
 if __name__ == '__main__':
     crawl_all()

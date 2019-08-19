@@ -62,14 +62,7 @@ def crawl_all():
     global driver
     driver = getDriver()
     german = crawl_german('https://german.cnu.ac.kr/notice.brd?shell=/index.shell:419', 'german', 'GERMAN_NOTICE', '독어독문학과')
-    while True:
-        try:
-            german.crawl()
-            time.sleep(1)
-        except:
-            driver.close()
-            traceback.print_exc()
-
-
+    german.crawl()
+    driver.close()
 if __name__ == '__main__':
     crawl_all()

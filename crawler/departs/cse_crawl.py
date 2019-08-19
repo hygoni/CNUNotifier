@@ -50,16 +50,11 @@ news = CSE('https://computer.cnu.ac.kr/computer/notice/cse.do', 'cse', 'CSE_NEWS
 general = CSE('https://computer.cnu.ac.kr/computer/notice/notice.do', 'cse', 'CSE_NOTICE', '[일반소식] - 컴퓨터융합학부')
 
 def crawl_all():
-    while True:
-            try:
-                bachelor.crawl()
-                project.crawl()
-                job.crawl()
-                news.crawl()
-                general.crawl()
-                time.sleep(10)
-            except:
-                traceback.print_exc()
+    bachelor.crawl()
+    project.crawl()
+    job.crawl()
+    news.crawl()
+    general.crawl()                
 
 if __name__ == '__main__':
     crawl_all()
