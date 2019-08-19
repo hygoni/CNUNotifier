@@ -27,7 +27,7 @@ class crawl_german(General):
       textList = []
       linkList = []
       timeList = []
-      
+
       driver.get(self.url)
       
       bsObj = BeautifulSoup(driver.page_source, 'html.parser')

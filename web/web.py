@@ -50,26 +50,35 @@ def make_rss(depart):
     conn = getConn()
     cursor = conn.cursor()
     if depart == 'dorm':
-        sql = 'SELECT txt, link, date from DORM_NOTICE'
+        sql = 'SELECT txt, link, time from DORM_NOTICE ORDER BY time DESC'
+    elif depart == 'cse':
+    	sql = '''SELECT txt, link, time FROM CSE_BACHELOR
+    	UNION SELECT txt, link, time FROM CSE_JOB
+    	UNION SELECT txt, link, time FROM CSE_NEWS
+    	UNION SELECT txt, link, time FROM CSE_NOTICE
+    	UNION SELECT txt, link, time FROM CSE_NOTICE_BACHELOR WHERE txt != 'Empty Notice'
+    	UNION SELECT txt, link, time FROM CSE_NOTICE_JOB WHERE txt != 'Empty Notice'
+    	UNION SELECT txt, link, time FROM CSE_NOTICE_NEWS WHERE txt != 'Empty Notice'
+    	UNION SELECT txt, link, time FROM CSE_NOTICE_PROJECT WHERE txt != 'Empty Notice'
+    	UNION SELECT txt, link, time FROM CSE_NOTICE_NOTICE WHERE txt != 'Empty Notice'
+    	UNION SELECT txt, link, time FROM CSE_PROJECT ORDER BY time DESC'''
 
     cursor.execute(sql)
     conn.commit()
     item_list = []
     for row in cursor.fetchall():
-        if row[0] == 'Empty Notice':
-            continue
         item = Item(
         title = row[0],
         link = row[1],
-        description = "공지사항",
+        description = "충대알리미가 알려주는 공지사항입니다!",
         author = depart,
         guid = Guid(row[1]),
         pubDate = datetime.datetime.fromtimestamp(row[2]))
         item_list.append(item)
     feed = Feed(
-        title = "공지사항 구독",
+        title = "충남대 공지 RSS",
         link = "https://pansle.com/rss/" + depart,
-        description = "공지사항 구독용 RSS",
+        description = "충남대 공지 RSS",
         language = "ko-KR",
         lastBuildDate = datetime.datetime.now(),
         items = item_list)
