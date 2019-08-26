@@ -15,7 +15,8 @@ def JSONMake(token, title, body, link=None):
     return json.dumps(file_data)
 
 def send(json):
-    r = requests.post(API_URL,
-                  data=json,
-                  headers={'Content-Type': 'application/json', 'Authorization' : API_KEY})
-    return r.text
+    #r = requests.post(API_URL,
+    #              data=json,
+    #              headers={'Content-Type': 'application/json', 'Authorization' : API_KEY})
+    print('NotSent')
+    #return r.text

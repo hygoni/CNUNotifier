@@ -11,7 +11,7 @@ from rfeed import *
 import datetime
 
 app = Flask(__name__)
-supportedDeparts = ['cse', 'german', 'free', 'dorm']
+supportedDeparts = ['cse', 'german', 'free', 'dorm', 'french']
 
 @app.route('/')
 def mainPage():
