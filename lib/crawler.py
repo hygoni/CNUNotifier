@@ -78,6 +78,7 @@ class GeneralNoNum():
 	def isInDB(self, title): #소식 번호만 리스트로 받아오기
 		conn = getConn()
 		cursor = conn.cursor()
+		title = self.escape_quote(title)
 
 		try:
 			sql = "select count(*) from " + self.table + " where txt = '{}' ".format(title)
@@ -87,6 +88,7 @@ class GeneralNoNum():
 			return count
 		except:
 			traceback.print_exc()
+			return 1
 
 		conn.close()
 

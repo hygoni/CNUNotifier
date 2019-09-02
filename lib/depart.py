@@ -68,4 +68,4 @@ def unregister(depart, token):
 #print(getUsersFromDepart('cse'))
 #sendMessage('cse', '제목', '내용')
 if __name__ == '__main__':
-    sendMessage('cse', '재헌띠', 'ㅎㅇㅎㅇ')
+    sendMessage('cse', '충대알리미 오류 안내', '오늘 11시경에 오류가 발생해 메시지가 반복적으로 전송되었습니다. 현재 버그는 해결된 상태입니다. 감사합니다.', 'https://pansle.com')
