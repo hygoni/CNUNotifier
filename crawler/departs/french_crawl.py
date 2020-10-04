@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import pymysql
 from openpyxl import Workbook
 from openpyxl import load_workbook
@@ -7,9 +6,9 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import time
 import traceback
-
+import os
 import sys
-sys.path.append('../../lib')
+sys.path.append(os.environ['NOTI_PATH'] + '/lib')
 from depart import *
 from crawler import *
 
@@ -39,8 +38,5 @@ class French(General):
  
 french = French('https://french.cnu.ac.kr/french/community/notice-under.do', 'french', 'FRENCH_NOTICE', '불어불문학과')
 
-def crawl_all():
-    french.crawl()            
-
-if __name__ == '__main__':
-    crawl_all()
+async def crawl_all(channel):
+    await french.crawl(channel)            

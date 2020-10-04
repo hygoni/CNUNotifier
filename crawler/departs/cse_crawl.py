@@ -8,9 +8,9 @@ from bs4 import BeautifulSoup
 import time
 import traceback
 import pdb
-
+import os
 import sys
-sys.path.append('../../lib')
+sys.path.append(os.environ['NOTI_PATH'] + '/lib')
 from depart import *
 from crawler import *
 
@@ -48,13 +48,9 @@ job = CSE('https://computer.cnu.ac.kr/computer/notice/job.do', 'cse', 'CSE_JOB',
 news = CSE('https://computer.cnu.ac.kr/computer/notice/cse.do', 'cse', 'CSE_NEWS', '[학부소식] - 컴퓨터융합학부')
 general = CSE('https://computer.cnu.ac.kr/computer/notice/notice.do', 'cse', 'CSE_NOTICE', '[일반소식] - 컴퓨터융합학부')
 
-def crawl_all():
-    #pdb.set_trace()
-    bachelor.crawl()
-    project.crawl()
-    job.crawl()
-    news.crawl()
-    general.crawl()                
-
-if __name__ == '__main__':
-    crawl_all()
+async def crawl_all(channel):
+    await bachelor.crawl(channel)
+    await project.crawl(channel)
+    await job.crawl(channel)
+    await news.crawl(channel)
+    await general.crawl(channel)                
