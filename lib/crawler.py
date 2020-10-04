@@ -8,7 +8,8 @@ import time
 import traceback
  
 import sys
-sys.path.append('../lib')
+import os
+sys.path.append(os.environ['NOTI_PATH'] + '/lib')
 from depart import *
 
 def getConn():
@@ -95,7 +96,7 @@ class GeneralNoNum():
 	def getLastFromWeb(self): #자식에서 재정의해야함, return type : text_list
 		raise NotOverridedError('getLastFromWeb()')
 
-	def crawl(self):
+	async def crawl(self, channel):
 		print('Crawling {}...'.format(self.msgTitle))
 		#초기 세팅
 		self.create_table()
@@ -104,11 +105,9 @@ class GeneralNoNum():
 			oldTitle, oldLink, oldTime = self.getLastFromWeb()
 			self.savingMySQL(oldTitle, oldLink, oldTime)
 			return
-
 		newTitle, newLink, newTime = self.getLastFromWeb() #웹에서 가져옴
-
 		for i in range(len(newTitle)):
-			sendMessage(self.subs_table, self.msgTitle, newTitle[i], newLink[i])
+			await sendMessage(self.subs_table, self.msgTitle, newTitle[i], newLink[i], channel)
 			self.savingMySQL(newTitle, newLink, newTime)
 
 class General():
@@ -183,7 +182,7 @@ class General():
 	def getLastFromWeb(self, n): #자식에서 재정의해야함, return type : (num_list, text_list) (tuple)
 		raise NotOverridedError('getLastFromWeb()')
 
-	def crawl(self):
+	async def crawl(self, channel):
 		print('Crawling {}...'.format(self.msgTitle))
 		#초기 세팅
 		self.create_table()
@@ -192,7 +191,6 @@ class General():
 			oldNumber, oldTitle, oldLink, oldTime = self.getLastFromWeb(5)
 			self.savingMySQL(oldNumber, oldTitle, oldLink, oldTime)
 			return
-
 		#최신 글 개수 불러오기
 		lastNumFromWeb = self.getLastFromWeb(1)[0][0] 
 		lastNumFromDB = self.getLastFromDB(1)[0][0]
@@ -200,9 +198,7 @@ class General():
 		print('새 소식 : {}개'.format(new))
 		if new == 0:
 			return
-
 		newNumber, newTitle, newLink, newTime = self.getLastFromWeb(new) #웹에서 가져옴
-
 		for i in range(len(newTitle)):
-			sendMessage(self.subs_table, self.msgTitle, newTitle[i], newLink[i])
+			await sendMessage(self.subs_table, self.msgTitle, newTitle[i], newLink[i], channel)
 			self.savingMySQL(newNumber, newTitle, newLink, newTime)

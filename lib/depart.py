@@ -1,12 +1,15 @@
 # -*- encoding: utf-8 -*-
+
 import pymysql
 from pymysql import OperationalError
 import sys
-sys.path.append('.')
-from firebase import *
+import os
+sys.path.append(os.environ['NOTI_PATH'] + '/lib')
 
 conn = pymysql.connect('localhost', user='cnunoti', password='localhost', db='cnunoti')
 cursor = conn.cursor()
+
+CHANNEL = ''
 
 def reconnect():
     print('OperationalError Occurred, reconnecting mysql...')
@@ -31,17 +34,10 @@ def getUsersFromDepart(depart):
     return result
 
 
-def sendMessage(depart, title, body, link='https://google.com'):
-    tokenList = getUsersFromDepart(depart)
-    
-    for token in tokenList:
-        js = JSONMake(token, title, body, link)
-        response = send(js)
-        if 'NotRegistered' in response:
-            unregister(depart, token)
-            print('Deleted token {} '.format(token))
-        print(response)
-        
+async def sendMessage(depart, title, body, link, channel):
+	await channel.send(depart + ' ' + title)
+	await channel.send(body)
+	await channel.send(link)
 
 def register(depart, token):
     try:
